@@ -12,6 +12,31 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   let mentors = [] // fix this
   let learners = [] // fix this
 
+  async function getData(url) {
+    try {
+      let response = await axios.get(url)
+      let people = response.data
+      return people
+    } catch (err) {
+      console.log('Not working')
+    }
+  }
+
+    let mentorsURL = 'http://localhost:3003/api/mentors'
+    let learnersURL = 'http://localhost:3003/api/learners'
+
+    mentors = await getData(mentorsURL)
+    learners = await getData(learnersURL)
+
+
+    let mentorsContainer = document.querySelector('#mentors')
+    let learnersContainer = document.querySelector('#learners')
+
+    //getData(mentors)
+    //getData(learners)
+  
+  
+
   // 👆 ==================== TASK 1 END ====================== 👆
 
   // 👇 ==================== TASK 2 START ==================== 👇
@@ -28,6 +53,22 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   //     "Grace Hopper"
   //   ]`
   // }
+    learners = learners.map(learner => {
+      if (learner.mentors) {
+      learner.mentors = learner.mentors.map(mentorID => {
+        let mentorData = mentors.find(mentorData => mentorData.id === mentorID)
+        
+        console.log(mentorID)
+        console.log(mentorData)
+        
+        return mentorData ? `${mentorData.firstName} ${mentorData.lastName}` : mentorID
+      })
+      } else {
+        console.log('mentors is undefined for learners')
+      }
+      return learner
+    })
+    
 
   // 👆 ==================== TASK 2 END ====================== 👆
 
@@ -48,10 +89,32 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
     // ❗ Inspect the mock site closely to understand what the initial texts and classes look like!
 
     const card = document.createElement('div')
+    card.classList.add('card')
+
     const heading = document.createElement('h3')
+    heading.textContent = learner.fullName
+    card.appendChild(heading)
+    
     const email = document.createElement('div')
+    email.classList.add('email')
+    email.textContent = learner.email
+    card.appendChild(email)
+
     const mentorsHeading = document.createElement('h4')
+    mentorsHeading.classList.add('closed')
+    mentorsHeading.textContent = 'Mentors'
+    card.appendChild(mentorsHeading)
+
     const mentorsList = document.createElement('ul')
+    learner.mentors.forEach(mentorName => {
+      const mentorItem = document.createElement('li')
+      mentorItem.textContent = mentorName
+      mentorsList.appendChild(mentorItem)
+    })
+
+    
+    
+    
 
     // 👆 ==================== TASK 3 END ====================== 👆
 
@@ -68,11 +131,13 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
       const didClickTheMentors = evt.target === mentorsHeading
       const isCardSelected = card.classList.contains('selected')
       // do a reset of all learner names, selected statuses, info message
+      if (!didClickTheMentors) {
       document.querySelectorAll('.card').forEach(crd => {
         crd.classList.remove('selected')
         crd.querySelector('h3').textContent = crd.dataset.fullName
       })
       info.textContent = 'No learner is selected'
+    }
       // conditional logic
       if (!didClickTheMentors) {
         // easy case, no mentor involvement
